@@ -22,4 +22,5 @@ public class BuildConfigurationTest extends BaseApiTest {
         softy.assertThat(project.getId()).isEqualTo(testData.getProject().getId());
 
     }
+
 }
