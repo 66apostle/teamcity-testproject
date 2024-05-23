@@ -23,7 +23,7 @@ jobs:
 
       - name: Set up host environment variables
         run: |
-          echo "HOST=$(ifconfig | grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v 127.0.0.1 | awk '{ print \$2 }' | cut -f2 -d: | head -n1)" >> $GITHUB_ENV
+          echo "HOST=$(ifconfig | grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v 127.0.0.1 | awk '{print $2}' | head -n1)" >> $GITHUB_ENV
 
       - name: Setup host config.properties
         run: echo "host=${{ env.HOST }}:8111" >> src/main/resources/config.properties
@@ -65,7 +65,9 @@ jobs:
         run: ./mvnw clean test -Dtest=SetupTest#startUpTest
 
       - name: Set up superUserToken environment variable
-        run: echo "SUPER_USER_TOKEN=$(docker logs teamcity-server | grep 'Super user authentication token' | tail -n 1 | awk '{print \$6}')" >> $GITHUB_ENV
+        run: |
+          SUPER_USER_TOKEN=$(docker logs teamcity-server | grep 'Super user authentication token' | tail -n 1 | awk '{print $6}')
+          echo "SUPER_USER_TOKEN=$SUPER_USER_TOKEN" >> $GITHUB_ENV
 
       - name: Set up superUserToken config property
         run: echo "superUserToken=${{ env.SUPER_USER_TOKEN }}" >> src/main/resources/config.properties
