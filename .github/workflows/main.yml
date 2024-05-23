@@ -66,7 +66,7 @@ jobs:
           jetbrains/teamcity-server:2023.11.1
 
       - name: Wait for TeamCity to initialize
-        run: sleep 60  # Wait for 60 seconds to ensure TeamCity is fully initialized
+        run: sleep 120
 
       - name: Setup TeamCity Server Test
         run: ./mvnw clean test -Dtest=SetupTest#startUpTest
@@ -76,7 +76,7 @@ jobs:
 
       - name: Setup superUserToken environment variable
         run: |
-          SUPER_USER_TOKEN=$(docker logs teamcity-server | grep 'Super user authentication token' | tail -n 1 | awk '{print $6}')
+          SUPER_USER_TOKEN=$(docker logs teamcity-server | grep 'Super user authentication token:' | tail -n 1 | awk '{print $6}')
           echo "SUPER_USER_TOKEN=$SUPER_USER_TOKEN"
           echo "SUPER_USER_TOKEN=$SUPER_USER_TOKEN" >> $GITHUB_ENV
           if [ -z "$SUPER_USER_TOKEN" ]; then
