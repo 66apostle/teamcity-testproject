@@ -21,7 +21,7 @@ jobs:
       - name: Install ifconfig
         run: sudo apt-get update && sudo apt-get install -y net-tools
 
-      - name: Setup host environment variables
+      - name: Set up host environment variables
         run: |
           HOST=$(ifconfig | grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v 127.0.0.1 | awk '{print $2}' | head -n1)
           echo "HOST=$HOST" >> $GITHUB_ENV
@@ -65,14 +65,24 @@ jobs:
           -p 8111:8111 \
           jetbrains/teamcity-server:2023.11.1
 
+      - name: Wait for TeamCity to initialize
+        run: sleep 60  # Wait for 60 seconds to ensure TeamCity is fully initialized
+
       - name: Setup TeamCity Server Test
         run: ./mvnw clean test -Dtest=SetupTest#startUpTest
+
+      - name: Check TeamCity logs
+        run: docker logs teamcity-server
 
       - name: Setup superUserToken environment variable
         run: |
           SUPER_USER_TOKEN=$(docker logs teamcity-server | grep 'Super user authentication token' | tail -n 1 | awk '{print $6}')
+          echo "SUPER_USER_TOKEN=$SUPER_USER_TOKEN"
           echo "SUPER_USER_TOKEN=$SUPER_USER_TOKEN" >> $GITHUB_ENV
-          echo "Super user authentication token: $SUPER_USER_TOKEN"
+          if [ -z "$SUPER_USER_TOKEN" ]; then
+            echo "Super user token not found!"
+            exit 1
+          fi
 
       - name: Setup superUserToken config property
         run: |
