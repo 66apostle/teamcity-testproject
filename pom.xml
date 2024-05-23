@@ -97,7 +97,12 @@
                             <name>allure.results.directory</name>
                             <value>${project.build.directory}/allure-results</value>
                         </property>
-                    </systemProperties>        </configuration>
+                    </systemProperties>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>testng-suites/api-suite.xml</suiteXmlFile>
+                        <suiteXmlFile>testng-suites/ui-suite.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
