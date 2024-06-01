@@ -1,0 +1,3 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"skipped","Sat Jun 01 13:38:17 UTC 2024","Sat Jun 01 13:38:17 UTC 2024","1","Surefire suite","Surefire test","com.example.teamcity_testproject.ui.SetupTest","com.example.teamcity_testproject.ui.SetupTest","startUpTest","startUpTest",""
+"broken","Sat Jun 01 13:38:17 UTC 2024","Sat Jun 01 13:38:17 UTC 2024","5","Surefire suite","Surefire test","com.example.teamcity_testproject.api.SetupTest","com.example.teamcity_testproject.api.SetupTest","AuthSettings","AuthSettings",""
