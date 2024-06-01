@@ -18,12 +18,12 @@ jobs:
       - name: Give execute permission for Maven Wrapper
         run: chmod +x ./mvnw
 
-      - name: Install ifconfig
+      - name: Install net-tools
         run: sudo apt-get update && sudo apt-get install -y net-tools
 
       - name: Set up host environment variables
         run: |
-          HOST=$(ifconfig | grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' | grep -v 127.0.0.1 | awk '{print $2}' | head -n1)
+          HOST=$(hostname -I | awk '{print $1}')
           echo "HOST=$HOST" >> $GITHUB_ENV
           echo "Host IP: $HOST"
 
@@ -66,7 +66,7 @@ jobs:
           jetbrains/teamcity-server:2023.11.1
 
       - name: Wait for TeamCity to initialize
-        run: sleep 900
+        run: sleep 900  # Wait for 15 minutes to ensure TeamCity is fully initialized
 
       - name: Setup TeamCity Server Test
         run: ./mvnw clean test -Dtest=SetupTest#startUpTest
@@ -101,10 +101,20 @@ jobs:
       - name: Run UI tests
         run: ./mvnw clean test -Dsurefire.suiteXmlFiles=testng-suites/ui-suite.xml
 
+      - name: Create empty gh-pages branch
+        run: |
+          git checkout --orphan gh-pages
+          git rm -rf --dry-run .
+          git rm -rf .
+          touch .nojekyll
+          echo "# Empty gh-pages branch" > README.md
+          git add .nojekyll README.md
+          git commit -m "Create empty gh-pages branch"
+          git push origin gh-pages
+
       - name: Load test report history
         uses: actions/checkout@v4
         if: always()
-        continue-on-error: true
         with:
           ref: gh-pages
           path: gh-pages
@@ -121,13 +131,13 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: always()
         with:
-          github_token: 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
+          personal_token: ${{ secrets.PERSONAL_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: allure-history
+          publish_dir: gh-pages
 
       - name: Run Swagger coverage
         if: always()
-        run: .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://$HOST:8111/app/rest/swagger.json -i target/swagger-coverage-output
+        run: .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://${{ env.HOST }}:8111/app/rest/swagger.json -i target/swagger-coverage-output
 
       - name: Save Swagger coverage
         uses: actions/upload-artifact@v4
